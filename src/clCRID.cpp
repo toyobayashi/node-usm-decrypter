@@ -4,6 +4,7 @@
 //--------------------------------------------------
 #include "clCRID.h"
 #include "clADX.h"
+#include "fopen.h"
 #ifndef _countof
 #define _countof(_array) (sizeof(_array)/sizeof(_array[0]))
 #endif
@@ -81,8 +82,8 @@ bool clCRID::LoadFile(const char *filename){
 	if(!(filename))return false;
 
 	// 開く
-	FILE *fp;
-	if(fopen_s(&fp,filename,"rb"))return false;
+	FILE *fp = utf8_fopen(filename,"rb");
+	if(fp == NULL)return false;
 
 	// ヘッダを取得
 	stInfo info;
@@ -129,8 +130,9 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 	if(!(filename&&directory))return false;
 
 	// 開く
-	FILE *fp,*fpInfo=NULL,*fpVideo=NULL,*fpAudio=NULL;
-	if(fopen_s(&fp,filename,"rb"))return false;
+	FILE *fp=NULL,*fpInfo=NULL,*fpVideo=NULL,*fpAudio=NULL;
+	fp = utf8_fopen(filename,"rb");
+	if(fp == NULL)return false;
 
 	// チェック
 	stInfo info;
@@ -182,14 +184,16 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 							if(!fpInfo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
 								sprintf_s(filename,_countof(filename),"%s\\%s.ini",directory,fix_filename);
-								fopen_s(&fpInfo,filename,"wb");
+								fpInfo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								// fopen_s(&fpInfo,filename,"wb");
 							}
 							break;
 						case 0x40534656:
 							if(!fpVideo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
 								sprintf_s(filename,_countof(filename),"%s\\%s.m2v",directory,fix_filename);
-								fopen_s(&fpVideo,filename,"wb");
+								fpVideo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								// fopen_s(&fpVideo,filename,"wb");
 							}
 							break;
 						case 0x40534641:
@@ -198,7 +202,8 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
 								sprintf_s(filename,_countof(filename),"%s\\%s",directory,fix_filename);
 								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat_s(filename,_countof(filename),".wav");
-								fopen_s(&fpAudio,filename,"wb");
+								fpAudio = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								// fopen_s(&fpAudio,filename,"wb");
 							}
 							break;
 						}

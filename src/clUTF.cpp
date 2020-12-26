@@ -3,6 +3,7 @@
 // インクルード
 //--------------------------------------------------
 #include "clUTF.h"
+#include "fopen.h"
 
 //--------------------------------------------------
 // インライン関数
@@ -24,8 +25,9 @@ unsigned char *LoadFile(const char *filename,int *fileSize=NULL){
 	if(!filename)return NULL;
 
 	// 開く
-	FILE *fp;
-	if(fopen_s(&fp,filename,"rb"))return NULL;
+	FILE *fp = NULL;
+	fp = utf8_fopen(filename,"rb");
+	if(fp == NULL)return NULL;
 
 	// サイズを取得
 	fseek(fp,0,SEEK_END);
@@ -201,8 +203,9 @@ bool clUTF::SaveFileINI(const char *filename,bool subUTF){
 	if(!(filename))return false;
 
 	// 開く
-	FILE *fp;
-	if(fopen_s(&fp,filename,"wb"))return false;
+	FILE *fp = NULL;
+	fp = utf8_fopen(filename,"wb");
+	if(fp == NULL)return false;
 
 	// 保存
 	SaveFileINI(fp,subUTF);

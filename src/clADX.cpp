@@ -5,6 +5,7 @@
 #include "clADX.h"
 #include <stdio.h>
 #include <memory.h>
+#include "fopen.h"
 
 //--------------------------------------------------
 // インライン関数
@@ -51,8 +52,10 @@ bool clADX::Decode(const char *filename,const char *filenameWAV){
 
 	// 開く
 	FILE *fp,*fp2;
-	if(fopen_s(&fp,filename,"rb"))return false;
-	if(fopen_s(&fp2,filenameWAV,"wb")){fclose(fp);return false;}
+	fp = utf8_fopen(filename,"rb");
+	if(fp == NULL)return false;
+	fp2 = utf8_fopen(filenameWAV,"wb");
+	if(fp2 == NULL){fclose(fp);return false;}
 
 	//
 	fread(&_header,sizeof(_header),1,fp);

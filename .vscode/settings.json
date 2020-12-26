@@ -36,6 +36,22 @@
     "xstddef": "cpp",
     "xstring": "cpp",
     "xtr1common": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "atomic": "cpp",
+    "compare": "cpp",
+    "clocale": "cpp",
+    "ctime": "cpp",
+    "iterator": "cpp",
+    "locale": "cpp",
+    "streambuf": "cpp",
+    "xfacet": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocbuf": "cpp",
+    "xlocinfo": "cpp",
+    "xlocmes": "cpp",
+    "xlocmon": "cpp",
+    "xlocnum": "cpp",
+    "xloctime": "cpp"
   }
 }

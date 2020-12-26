@@ -12,6 +12,7 @@
       'target_name': 'usm',
       'sources': [
         'src/index.cpp',
+        'src/fopen.cpp',
         'src/clADX.cpp',
         'src/clCRID.cpp',
         'src/clUTF.cpp',
