@@ -28,14 +28,37 @@ function demuxAsync (...args) {
 
 describe('USMDecrypter class', function () {
 
+  it('#demux wrong file', function (done) {
+    this.timeout(Infinity)
+    fs.mkdirsSync(defaultDir)
+    demuxAsync('123', defaultDir).then((p) => {
+      done(new Error('should failed'))
+    }).catch(() => {
+      done()
+    })
+  })
+
+  it('#demuxSync wrong file', function () {
+    this.timeout(Infinity)
+    fs.mkdirsSync(defaultDir)
+    try {
+      usm.demuxSync('123', defaultDir)
+    } catch (_) {
+      return
+    }
+    throw new Error('should failed')
+  })
+
   it('#demux error', async function () {
     this.timeout(Infinity)
     await downloader.downloadOneRaw(ResourceType.MOVIE, '9c59b78e05382f721a8803d9aed06640', usmPath)
     fs.removeSync(defaultDir)
     try {
       await demuxAsync(usmPath)
-      throw new Error('should failed')
-    } catch (_) {}
+    } catch (_) {
+      return
+    }
+    throw new Error('should failed')
   })
 
   it('#demuxSync error', async function () {
@@ -45,8 +68,10 @@ describe('USMDecrypter class', function () {
     fs.removeSync(defaultDir)
     try {
       usm.demuxSync(usmPath)
-      done(new Error('should failed'))
-    } catch (_) {}
+    } catch (_) {
+      return
+    }
+    throw new Error('should failed')
   })
 
   it('#demux success', async function () {
@@ -67,7 +92,7 @@ describe('USMDecrypter class', function () {
     fs.removeSync(defaultDir)
     fs.mkdirsSync(defaultDir)
     const b = usm.demuxSync(usmPath)
-    assert.ok(b)
+    assert.ok(b === defaultDir)
   })
 
 })

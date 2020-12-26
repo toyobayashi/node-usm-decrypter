@@ -203,12 +203,12 @@ Napi::Value USMDecrypter::_demuxSync(const Napi::CallbackInfo &info){
   size_t argc = info.Length();
   if (argc < 1) {
     Napi::Error::New(env, "USMDecrypter::demuxSync(): arguments.length < 1").ThrowAsJavaScriptException();
-    return Napi::Boolean::New(env, false);
+    return Napi::String::New(env, "");
   }
 
   if (!info[0].IsString()) {
     Napi::Error::New(env, "USMDecrypter::demuxSync(): typeof arguments[0] !== 'string'").ThrowAsJavaScriptException();
-    return Napi::Boolean::New(env, false);
+    return Napi::String::New(env, "");
   }
 
   std::string usm = "";
@@ -236,10 +236,15 @@ Napi::Value USMDecrypter::_demuxSync(const Napi::CallbackInfo &info){
 
   if (!is_dir(outdir)) {
     Napi::Error::New(env, "USMDecrypter::demuxSync(): fs.statSync(arguments[1]).isDirectory() !== true").ThrowAsJavaScriptException();
-    return Napi::Boolean::New(env, false);
+    return Napi::String::New(env, "");
   }
 
-  return Napi::Boolean::New(env, _crid->Demux(usm.c_str(), outdir.c_str(), adxDecode));
+  bool res = _crid->Demux(usm.c_str(), outdir.c_str(), adxDecode);
+  if (!res) {
+    Napi::Error::New(env, usm + " decrypt failed.").ThrowAsJavaScriptException();
+    return Napi::String::New(env, "");
+  }
+  return Napi::String::New(env, outdir);
 }
 
 static Napi::Object _init(Napi::Env env, Napi::Object exports) {
