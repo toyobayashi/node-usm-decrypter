@@ -19,7 +19,7 @@ inline unsigned int bswap(unsigned int v){unsigned int r=v&0xFF;r<<=8;v>>=8;r|=v
 inline long long bswap(long long v){long long r=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;return r;}
 inline unsigned long long bswap(unsigned long long v){unsigned long long r=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;return r;}
 inline float bswap(float v){unsigned int i=bswap(*(unsigned int *)&v);return *(float *)&i;}
-inline WCHAR bswap(WCHAR v){short r=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;return r;}
+inline wchar_t bswap(wchar_t v){short r=v&0xFF;r<<=8;v>>=8;r|=v&0xFF;return r;}
 
 //--------------------------------------------------
 // 拡張子を取得
@@ -44,15 +44,15 @@ char *FixFilename(char *fix_filename,int size,const char *filename){
 	memset(fix_filename,0,size);
 	for(int i=0,len=strlen(filename);i<len&&i<size-3;i++,filename++){
 		switch(*filename){
-		case '*':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'＊');break;
-		case '|':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'｜');break;
-		case '\\':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'￥');break;
-		case ':':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'：');break;
-		case '"':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'”');break;
-		case '<':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'＜');break;
-		case '>':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'＞');break;
-		case '?':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'？');break;
-		case '/':*(WCHAR *)&fix_filename[i++]=bswap((WCHAR)'／');break;
+		case '*':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＊');break;
+		case '|':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'｜');break;
+		case '\\':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'￥');break;
+		case ':':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'：');break;
+		case '"':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'”');break;
+		case '<':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＜');break;
+		case '>':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＞');break;
+		case '?':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'？');break;
+		case '/':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'／');break;
 		default:fix_filename[i]=*filename;break;
 		}
 	}

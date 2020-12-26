@@ -12,7 +12,7 @@
 
 #include "fopen.h"
 
-std::wstring a2w(const std::string& str, unsigned int windowscp, const char* locale) {
+std::wstring a2w(const std::string& str, unsigned int windowscp, const char* localestr) {
 #ifdef _WIN32
   int len = MultiByteToWideChar(windowscp, 0, str.c_str(), -1, nullptr, 0);
   if (len == 0) return L"";
@@ -23,7 +23,7 @@ std::wstring a2w(const std::string& str, unsigned int windowscp, const char* loc
   delete[] buf;
   return res;
 #else
-  std::string target_locale = locale;
+  std::string target_locale = localestr;
   const char* c_locale = std::setlocale(LC_CTYPE, nullptr);
   std::string locale(c_locale ? c_locale : "");
 
@@ -45,7 +45,7 @@ std::wstring a2w(const std::string& str, unsigned int windowscp, const char* loc
 #endif
 }
 
-std::string w2a(const std::wstring& wstr, unsigned int windowscp, const char* locale) {
+std::string w2a(const std::wstring& wstr, unsigned int windowscp, const char* localestr) {
 #ifdef _WIN32
   int len = WideCharToMultiByte(windowscp, 0, wstr.c_str(), -1, nullptr, 0, NULL, NULL);
   if (len == 0) return "";
@@ -56,7 +56,7 @@ std::string w2a(const std::wstring& wstr, unsigned int windowscp, const char* lo
   delete[] buf;
   return res;
 #else
-  std::string target_locale = locale;
+  std::string target_locale = localestr;
   const char* c_locale = std::setlocale(LC_CTYPE, nullptr);
   std::string locale(c_locale ? c_locale : "");
 
