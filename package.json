@@ -1,0 +1,22 @@
+{
+  "name": "usm-decrypter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "scripts": {
+    "b": "node-gyp build",
+    "build": "node-gyp rebuild"
+  },
+  "author": "toyobayashi",
+  "license": "MIT",
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toyobayashi/node-usm-decrypter.git"
+  },
+  "homepage": "https://github.com/toyobayashi/node-usm-decrypter#readme",
+  "dependencies": {
+    "node-addon-api": "3.1.0"
+  }
+}
