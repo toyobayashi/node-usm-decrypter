@@ -146,6 +146,8 @@ clCRID* USMDecrypter::crid() {
   return _crid;
 }
 
+static Napi::Value noop(const Napi::CallbackInfo &info) { return info.Env().Undefined(); }
+
 Napi::Value USMDecrypter::_demux(const Napi::CallbackInfo &info){
   Napi::Env env = info.Env();
   size_t argc = info.Length();
@@ -186,6 +188,9 @@ Napi::Value USMDecrypter::_demux(const Napi::CallbackInfo &info){
           break;
       }
     }
+  }
+  if (callback.IsEmpty()) {
+    callback = Napi::Function::New(env, noop);
   }
   USMAsyncWorker* worker = new USMAsyncWorker(_crid, usm, outdir, adxDecode, callback);
   worker->Queue();
