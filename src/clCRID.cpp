@@ -6,6 +6,15 @@
 #include "clCRID.h"
 #include "clADX.h"
 #include "fopen.h"
+
+#ifdef _WIN32
+#define PATH_SEP ("\\")
+#define PATH_SEP_W (L"\\")
+#else
+#define PATH_SEP ("/")
+#define PATH_SEP_W (L"/")
+#endif
+
 #ifndef _countof
 #define _countof(_array) (sizeof(_array)/sizeof(_array[0]))
 #endif
@@ -45,15 +54,15 @@ char *FixFilename(char *fix_filename,int size,const char *filename){
 	memset(fix_filename,0,size);
 	for(int i=0,len=strlen(filename);i<len&&i<size-3;i++,filename++){
 		switch(*filename){
-		case '*':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＊');break;
-		case '|':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'｜');break;
-		case '\\':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'￥');break;
-		case ':':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'：');break;
-		case '"':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'”');break;
-		case '<':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＜');break;
-		case '>':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'＞');break;
-		case '?':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'？');break;
-		case '/':*(wchar_t *)&fix_filename[i++]=bswap((wchar_t)'／');break;
+		case '*':*(wchar_t *)&fix_filename[i++]=bswap(L'＊');break;
+		case '|':*(wchar_t *)&fix_filename[i++]=bswap(L'｜');break;
+		case '\\':*(wchar_t *)&fix_filename[i++]=bswap(L'￥');break;
+		case ':':*(wchar_t *)&fix_filename[i++]=bswap(L'：');break;
+		case '"':*(wchar_t *)&fix_filename[i++]=bswap(L'”');break;
+		case '<':*(wchar_t *)&fix_filename[i++]=bswap(L'＜');break;
+		case '>':*(wchar_t *)&fix_filename[i++]=bswap(L'＞');break;
+		case '?':*(wchar_t *)&fix_filename[i++]=bswap(L'？');break;
+		case '/':*(wchar_t *)&fix_filename[i++]=bswap(L'／');break;
 		default:fix_filename[i]=*filename;break;
 		}
 	}
@@ -184,8 +193,10 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 						case 0x00000000:
 							if(!fpInfo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf(filename,"%s\\%s.ini",directory,fix_filename);
-								// sprintf_s(filename,_countof(filename),"%s\\%s.ini",directory,fix_filename);
+								strcpy(filename, directory);
+								strcat(filename, PATH_SEP);
+								strcat(filename, fix_filename);
+								strcat(filename, ".ini");
 								fpInfo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpInfo,filename,"wb");
 							}
@@ -193,8 +204,10 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 						case 0x40534656:
 							if(!fpVideo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf(filename,"%s\\%s.m2v",directory,fix_filename);
-								// sprintf_s(filename,_countof(filename),"%s\\%s.m2v",directory,fix_filename);
+								strcpy(filename, directory);
+								strcat(filename, PATH_SEP);
+								strcat(filename, fix_filename);
+								strcat(filename, ".m2v");
 								fpVideo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpVideo,filename,"wb");
 							}
@@ -203,8 +216,9 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 							if(!fpAudio){
 								char ext[4];
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf(filename,"%s\\%s",directory,fix_filename);
-								// sprintf_s(filename,_countof(filename),"%s\\%s",directory,fix_filename);
+								strcpy(filename, directory);
+								strcat(filename, PATH_SEP);
+								strcat(filename, fix_filename);
 								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat(filename,".wav");
 								fpAudio = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpAudio,filename,"wb");

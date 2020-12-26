@@ -111,7 +111,7 @@ Napi::Object USMDecrypter::init(Napi::Env env, Napi::Object exports) {
 
 USMDecrypter::USMDecrypter(const Napi::CallbackInfo &info) : Napi::ObjectWrap<USMDecrypter>(info) {
   _crid = nullptr;
-  Napi::Env env = info.Env();
+  // Napi::Env env = info.Env();
   ciphKey1 = 0xF27E3B22;
   ciphKey2 = 0x00003657;
   size_t argc = info.Length();
@@ -164,7 +164,7 @@ Napi::Value USMDecrypter::_demux(const Napi::CallbackInfo &info){
   bool adxDecode = true;
   Napi::Function callback;
 
-  int i = 0;
+  size_t i = 0;
 
   for (i = 0; i < argc; i++) {
     if (info[i].IsFunction()) {
@@ -210,7 +210,7 @@ Napi::Value USMDecrypter::_demuxSync(const Napi::CallbackInfo &info){
   std::string outdir = "";
   bool adxDecode = true;
 
-  int i = 0;
+  size_t i = 0;
 
   for (i = 0; i < argc; i++) {
     switch (i) {

@@ -3,6 +3,8 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <Windows.h>
+#else
+#include <iconv.h>
 #endif
 
 #include <clocale>
@@ -23,24 +25,22 @@ std::wstring a2w(const std::string& str, unsigned int windowscp, const char* loc
   delete[] buf;
   return res;
 #else
-  std::string target_locale = localestr;
-  const char* c_locale = std::setlocale(LC_CTYPE, nullptr);
-  std::string locale(c_locale ? c_locale : "");
-
-  if (locale != target_locale) {
-    std::setlocale(LC_CTYPE, target_locale.c_str());
-  }
-
-  size_t len = std::mbstowcs(nullptr, str.c_str(), 0);
-  wchar_t* buf = new wchar_t[len + 1];
-  memset(buf, 0, (len + 1) * sizeof(wchar_t));
-  std::mbstowcs(buf, str.c_str(), len + 1);
-  std::wstring res(buf);
-  delete[] buf;
-
-  if (locale != "") {
-    std::setlocale(LC_CTYPE, locale.c_str());
-  }
+  iconv_t cd = iconv_open("UNICODE", localestr);
+  if (!cd) return L"";
+  char* inbuf = (char*)malloc(str.length() + 1);
+  strcpy(inbuf, &str[0]);
+  inbuf[str.length()] = '\0';
+  char* inbuforigin = inbuf;
+  size_t inbuflen = str.length() + 1;
+  size_t outbuflen = 2 * inbuflen;
+  char* outbuf = (char*)malloc(outbuflen);
+  memset(outbuf, 0, outbuflen);
+  char* outbuforigin = outbuf;
+  iconv(cd, &inbuf, &inbuflen, &outbuf, &outbuflen);
+  free(inbuforigin);
+  iconv_close(cd);
+  std::wstring res((wchar_t*)outbuforigin);
+  free(outbuforigin);
   return res;
 #endif
 }
@@ -56,30 +56,48 @@ std::string w2a(const std::wstring& wstr, unsigned int windowscp, const char* lo
   delete[] buf;
   return res;
 #else
-  std::string target_locale = localestr;
-  const char* c_locale = std::setlocale(LC_CTYPE, nullptr);
-  std::string locale(c_locale ? c_locale : "");
-
-  if (locale != target_locale) {
-    std::setlocale(LC_CTYPE, target_locale.c_str());
-  }
-
-  size_t len = std::wcstombs(nullptr, wstr.c_str(), 0);
-  char* buf = new char[len + 1];
-  memset(buf, 0, (len + 1) * sizeof(char));
-  std::wcstombs(buf, wstr.c_str(), len + 1);
-  std::string res(buf);
-  delete[] buf;
-
-  if (locale != "") {
-    std::setlocale(LC_CTYPE, locale.c_str());
-  }
+  iconv_t cd = iconv_open(localestr, "UNICODE");
+  if (!cd) return "";
+  wchar_t* inbuf = (wchar_t*)malloc(wstr.length() + 1);
+  wcscpy(inbuf, &wstr[0]);
+  inbuf[wstr.length()] = L'\0';
+  wchar_t* inbuforigin = inbuf;
+  size_t inbuflen = (wstr.length() + 1) * 2;
+  size_t outbuflen = 2 * inbuflen;
+  char* outbuf = (char*)malloc(outbuflen);
+  memset(outbuf, 0, outbuflen);
+  char* outbuforigin = outbuf;
+  iconv(cd, (char**)(&inbuf), &inbuflen, &outbuf, &outbuflen);
+  free(inbuforigin);
+  iconv_close(cd);
+  std::string res(outbuforigin);
+  free(outbuforigin);
   return res;
 #endif
 }
 
 std::string shiftjis2utf8 (const std::string& str) {
+#ifdef _WIN32
   return w2a(a2w(str, CODEPAGE_SHIFT_JIS, LOCALE_SHIFT_JIS), CODEPAGE_UTF8, LOCALE_UTF8);
+#else
+  iconv_t cd = iconv_open("UTF-8", "CP932");
+  if (!cd) return "";
+  char* inbuf = (char*)malloc(str.length() + 1);
+  strcpy(inbuf, &str[0]);
+  inbuf[str.length()] = '\0';
+  char* inbuforigin = inbuf;
+  size_t inbuflen = str.length() + 1;
+  size_t outbuflen = 2 * inbuflen;
+  char* outbuf = (char*)malloc(outbuflen);
+  memset(outbuf, 0, outbuflen);
+  char* outbuforigin = outbuf;
+  iconv(cd, &inbuf, &inbuflen, &outbuf, &outbuflen);
+  free(inbuforigin);
+  iconv_close(cd);
+  std::string res(outbuforigin);
+  free(outbuforigin);
+  return res;
+#endif
 }
 
 

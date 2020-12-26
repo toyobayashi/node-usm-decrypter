@@ -16,6 +16,25 @@
       "cStandard": "c11",
       "cppStandard": "c++11",
       "intelliSenseMode": "msvc-x64"
+    },
+    {
+      "name": "Linux",
+      "defines": [],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "gcc-x64",
+      "browse": {
+        "path": [
+          "${workspaceFolder}"
+        ],
+        "limitSymbolsToIncludedHeaders": true,
+        "databaseFilename": ""
+      },
+      "includePath": [
+        "${workspaceFolder}/node_modules/node-addon-api",
+        "${env:HOME}/.cache/node-gyp/12.18.1/include/node"
+      ]
     }
   ],
   "version": 4
