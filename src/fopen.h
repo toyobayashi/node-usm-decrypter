@@ -11,5 +11,6 @@
 
 FILE* utf8_fopen (const char* path, const char* mode);
 std::string shiftjis2utf8 (const std::string& str);
+std::wstring a2w(const std::string& str, unsigned int windowscp, const char* locale);
 
 #endif

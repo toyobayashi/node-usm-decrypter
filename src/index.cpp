@@ -1,5 +1,33 @@
 #include <napi.h>
 #include "clCRID.h"
+#include "fopen.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+static bool is_dir (const std::string& path) {
+  int code = 0;
+#ifdef _WIN32
+  struct _stat info;
+  std::wstring wpath = a2w(path, CODEPAGE_UTF8, LOCALE_UTF8);
+  code = _wstat(wpath.c_str(), &info);
+  if (code != 0) {
+    return false;
+  }
+  return ((info.st_mode & S_IFMT) == S_IFDIR);
+#else
+  struct stat info;
+  code = ::stat(path.c_str(), &info);
+  if (code != 0) {
+    return false;
+  }
+  return S_ISDIR(info.st_mode);
+#endif
+}
 
 class USMDecrypter : public Napi::ObjectWrap<USMDecrypter> {
 public:
@@ -31,6 +59,7 @@ private:
   std::string _outdir;
   bool _adxDecode;
   bool _res;
+  std::string _errmsg;
 };
 
 USMAsyncWorker::USMAsyncWorker(clCRID* crid, const std::string& usmFile, const std::string& outdir, bool adxDecode, const Napi::Function& callback): Napi::AsyncWorker(callback) {
@@ -39,9 +68,15 @@ USMAsyncWorker::USMAsyncWorker(clCRID* crid, const std::string& usmFile, const s
   _outdir = outdir;
   _adxDecode = adxDecode;
   _res = false;
+  _errmsg = "";
 }
 
 void USMAsyncWorker::Execute() {
+  if (!is_dir(_outdir)) {
+    _errmsg = "USMDecrypter::demux(): fs.statSync(arguments[1]).isDirectory() !== true";
+    _res = Napi::Boolean::New(Env(), false);
+    return;
+  }
   _res = _crid.Demux(_usmFile.c_str(), _outdir.c_str(), _adxDecode);
 }
 
@@ -53,7 +88,7 @@ void USMAsyncWorker::OnOK() {
     }
   } else {
     if (!Callback().IsEmpty()) {
-      Callback().Call({ Napi::Error::New(env, _usmFile + " decrypt failed.").Value(), Napi::String::New(env, "") });
+      Callback().Call({ Napi::Error::New(env, _errmsg == "" ? (_usmFile + " decrypt failed.") : _errmsg).Value(), Napi::String::New(env, "") });
     }
   }
 }
@@ -192,6 +227,11 @@ Napi::Value USMDecrypter::_demuxSync(const Napi::CallbackInfo &info){
       default:
         break;
     }
+  }
+
+  if (!is_dir(outdir)) {
+    Napi::Error::New(env, "USMDecrypter::demuxSync(): fs.statSync(arguments[1]).isDirectory() !== true").ThrowAsJavaScriptException();
+    return Napi::Boolean::New(env, false);
   }
 
   return Napi::Boolean::New(env, _crid->Demux(usm.c_str(), outdir.c_str(), adxDecode));
