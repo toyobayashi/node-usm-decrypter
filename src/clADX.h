@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CLADX_H__
+#define __CLADX_H__
 
 //--------------------------------------------------
 // インクルード
@@ -57,3 +58,5 @@ private:
 	int *_data;
 	static void Decode(int *d,unsigned char *s);
 };
+
+#endif

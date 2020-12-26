@@ -1,10 +1,11 @@
-#pragma once
+#ifndef __CLUTF_H__
+#define __CLUTF_H__
 
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+// #define WIN32_LEAN_AND_MEAN
+// #include <Windows.h>
 #include <stdio.h>
 
 //--------------------------------------------------
@@ -140,3 +141,5 @@ private:
 	stPage *_page;
 	clElement *Add(stPage *parent,const char *name);
 };
+
+#endif

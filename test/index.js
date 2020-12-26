@@ -57,6 +57,7 @@ describe('USMDecrypter class', function () {
     fs.mkdirsSync(defaultDir)
     const p = await demuxAsync(usmPath)
     assert.ok(p === defaultDir)
+    console.log(fs.readdirSync(defaultDir))
   })
 
   it('#demuxSync success', async function () {

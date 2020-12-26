@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CLCRID_H__
+#define __CLCRID_H__
 
 //--------------------------------------------------
 // インクルード
@@ -51,3 +52,5 @@ private:
 	void MaskAudio(unsigned char *data,int size);
 	static void WriteInfo(FILE *fp,const char *string);
 };
+
+#endif
