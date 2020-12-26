@@ -2,6 +2,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include <string.h>
 #include "clCRID.h"
 #include "clADX.h"
 #include "fopen.h"
@@ -183,7 +184,8 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 						case 0x00000000:
 							if(!fpInfo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf_s(filename,_countof(filename),"%s\\%s.ini",directory,fix_filename);
+								sprintf(filename,"%s\\%s.ini",directory,fix_filename);
+								// sprintf_s(filename,_countof(filename),"%s\\%s.ini",directory,fix_filename);
 								fpInfo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpInfo,filename,"wb");
 							}
@@ -191,7 +193,8 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 						case 0x40534656:
 							if(!fpVideo){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf_s(filename,_countof(filename),"%s\\%s.m2v",directory,fix_filename);
+								sprintf(filename,"%s\\%s.m2v",directory,fix_filename);
+								// sprintf_s(filename,_countof(filename),"%s\\%s.m2v",directory,fix_filename);
 								fpVideo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpVideo,filename,"wb");
 							}
@@ -200,7 +203,8 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 							if(!fpAudio){
 								char ext[4];
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
-								sprintf_s(filename,_countof(filename),"%s\\%s",directory,fix_filename);
+								sprintf(filename,"%s\\%s",directory,fix_filename);
+								// sprintf_s(filename,_countof(filename),"%s\\%s",directory,fix_filename);
 								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat_s(filename,_countof(filename),".wav");
 								fpAudio = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpAudio,filename,"wb");

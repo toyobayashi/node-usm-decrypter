@@ -11,7 +11,7 @@ const getPath = (...args) => {
 const downloader = new Downloader()
 const usm = new USMDecrypter()
 
-const usmPath = getPath('./test/movie8028.usm')
+const usmPath = getPath('./test/movie9909.usm')
 const defaultDir = path.join(path.dirname(usmPath), path.parse(usmPath).name + '.demux')
 
 function demuxAsync (...args) {
@@ -30,7 +30,7 @@ describe('USMDecrypter class', function () {
 
   it('#demux error', async function () {
     this.timeout(Infinity)
-    await downloader.downloadOneRaw(ResourceType.MOVIE, 'a716a94be7d7c51a641971ca4fc79ff5', usmPath)
+    await downloader.downloadOneRaw(ResourceType.MOVIE, '9c59b78e05382f721a8803d9aed06640', usmPath)
     fs.removeSync(defaultDir)
     try {
       await demuxAsync(usmPath)
@@ -41,7 +41,7 @@ describe('USMDecrypter class', function () {
   it('#demuxSync error', async function () {
     this.timeout(Infinity)
 
-    await downloader.downloadOneRaw(ResourceType.MOVIE, 'a716a94be7d7c51a641971ca4fc79ff5', usmPath)
+    await downloader.downloadOneRaw(ResourceType.MOVIE, '9c59b78e05382f721a8803d9aed06640', usmPath)
     fs.removeSync(defaultDir)
     try {
       usm.demuxSync(usmPath)
@@ -52,7 +52,7 @@ describe('USMDecrypter class', function () {
   it('#demux success', async function () {
     this.timeout(Infinity)
 
-    await downloader.downloadOneRaw(ResourceType.MOVIE, 'a716a94be7d7c51a641971ca4fc79ff5', usmPath)
+    await downloader.downloadOneRaw(ResourceType.MOVIE, '9c59b78e05382f721a8803d9aed06640', usmPath)
     fs.removeSync(defaultDir)
     fs.mkdirsSync(defaultDir)
     const p = await demuxAsync(usmPath)
@@ -63,7 +63,7 @@ describe('USMDecrypter class', function () {
   it('#demuxSync success', async function () {
     this.timeout(Infinity)
 
-    await downloader.downloadOneRaw(ResourceType.MOVIE, 'a716a94be7d7c51a641971ca4fc79ff5', usmPath)
+    await downloader.downloadOneRaw(ResourceType.MOVIE, '9c59b78e05382f721a8803d9aed06640', usmPath)
     fs.removeSync(defaultDir)
     fs.mkdirsSync(defaultDir)
     const b = usm.demuxSync(usmPath)
