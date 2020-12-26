@@ -29,7 +29,7 @@ char *GetExtension(char *extension,int size,const char *path){
 	if(size>0)extension[0]='\0';
 	for(int i=strlen(path)-1;i>=0;i--){
 		if(path[i]=='.'){
-			strcpy_s(extension,size,&path[i+1]);
+			strcpy(extension,&path[i+1]);
 			break;
 		}else if(path[i]=='\\'||path[i]=='/'){
 			break;
@@ -205,7 +205,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 								FixFilename(fix_filename,_countof(fix_filename),_utf.GetElement(i,"filename")->GetValueString());
 								sprintf(filename,"%s\\%s",directory,fix_filename);
 								// sprintf_s(filename,_countof(filename),"%s\\%s",directory,fix_filename);
-								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat_s(filename,_countof(filename),".wav");
+								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat(filename,".wav");
 								fpAudio = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
 								// fopen_s(&fpAudio,filename,"wb");
 							}
