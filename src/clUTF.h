@@ -8,6 +8,12 @@
 // #include <Windows.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+#define EOL ("\r\n")
+#else
+#define EOL ("\n")
+#endif
+
 //--------------------------------------------------
 // UTFクラス
 //--------------------------------------------------
@@ -93,8 +99,8 @@ public:
 	bool LoadFile(const char *filename);
 	bool LoadData(void *data);
 	//bool SaveFile(const char *filename);
-	bool SaveFileINI(const char *filename,bool subUTF=false);
-	bool SaveFileINI(FILE *fp,bool subUTF=false,int tab=0);
+	bool SaveFileINI(unsigned int encoding, const char *filename,bool subUTF=false);
+	bool SaveFileINI(unsigned int encoding, FILE *fp,bool subUTF=false,int tab=0);
 	void Release(void);
 
 	// 要素

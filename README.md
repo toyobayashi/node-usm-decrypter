@@ -1,3 +1,4 @@
+```ts
 export declare type DecryptCallback = (err: Error | null, outdir: string) => void
 
 export declare enum Encoding {
@@ -17,3 +18,4 @@ export declare class USMDecrypter {
 
   demuxSync (usmFile: string, outdir?: string, adxDecode?: boolean): string
 }
+```

@@ -29,6 +29,26 @@ static bool is_dir (const std::string& path) {
 #endif
 }
 
+static bool is_file (const std::string& path) {
+  int code = 0;
+#ifdef _WIN32
+  struct _stat info;
+  std::wstring wpath = a2w(path, CODEPAGE_UTF8, LOCALE_UTF8);
+  code = _wstat(wpath.c_str(), &info);
+  if (code != 0) {
+    return false;
+  }
+  return ((info.st_mode & S_IFMT) == S_IFREG);
+#else
+  struct stat info;
+  code = ::stat(path.c_str(), &info);
+  if (code != 0) {
+    return false;
+  }
+  return S_ISREG(info.st_mode);
+#endif
+}
+
 class USMDecrypter : public Napi::ObjectWrap<USMDecrypter> {
 public:
   static Napi::Object init(Napi::Env env, Napi::Object exports);
@@ -43,9 +63,12 @@ private:
   
   unsigned int ciphKey1;
   unsigned int ciphKey2;
+  uint32_t encoding;
 
   Napi::Value _demux(const Napi::CallbackInfo &info);
   Napi::Value _demuxSync(const Napi::CallbackInfo &info);
+  Napi::Value _setEncoding(const Napi::CallbackInfo &info);
+  Napi::Value _getEncoding(const Napi::CallbackInfo &info);
 };
 
 class USMAsyncWorker : public Napi::AsyncWorker {
@@ -72,6 +95,11 @@ USMAsyncWorker::USMAsyncWorker(clCRID* crid, const std::string& usmFile, const s
 }
 
 void USMAsyncWorker::Execute() {
+  if (!is_file(_usmFile)) {
+    _errmsg = "USMDecrypter::demux(): fs.statSync(arguments[0]).isFile() !== true";
+    _res = Napi::Boolean::New(Env(), false);
+    return;
+  }
   if (!is_dir(_outdir)) {
     _errmsg = "USMDecrypter::demux(): fs.statSync(arguments[1]).isDirectory() !== true";
     _res = Napi::Boolean::New(Env(), false);
@@ -99,13 +127,22 @@ Napi::Object USMDecrypter::init(Napi::Env env, Napi::Object exports) {
   // This method is used to hook the accessor and method callbacks
   Napi::Function classConstructor = DefineClass(env, "USMDecrypter", {
     InstanceMethod("demux", &USMDecrypter::_demux),
-    InstanceMethod("demuxSync", &USMDecrypter::_demuxSync)
+    InstanceMethod("demuxSync", &USMDecrypter::_demuxSync),
+    InstanceMethod("setEncoding", &USMDecrypter::_setEncoding),
+    InstanceMethod("getEncoding", &USMDecrypter::_getEncoding)
   });
 
   _constructor = Napi::Persistent(classConstructor);
 
   _constructor.SuppressDestruct();
   exports.Set("USMDecrypter", classConstructor);
+
+  Napi::Object Encoding = Napi::Object::New(env);
+  Encoding["SHIFT_JIS"] = Napi::Number::New(env, CODEPAGE_SHIFT_JIS);
+  Encoding["UTF8"] = Napi::Number::New(env, CODEPAGE_UTF8);
+  Encoding[CODEPAGE_SHIFT_JIS] = Napi::String::New(env, "SHIFT_JIS");
+  Encoding[CODEPAGE_UTF8] = Napi::String::New(env, "UTF8");
+  exports.Set("Encoding", Encoding);
   return exports;
 }
 
@@ -114,6 +151,7 @@ USMDecrypter::USMDecrypter(const Napi::CallbackInfo &info) : Napi::ObjectWrap<US
   // Napi::Env env = info.Env();
   ciphKey1 = 0xF27E3B22;
   ciphKey2 = 0x00003657;
+  encoding = CODEPAGE_SHIFT_JIS;
   size_t argc = info.Length();
 
   if (argc < 1) {
@@ -148,7 +186,31 @@ clCRID* USMDecrypter::crid() {
 
 static Napi::Value noop(const Napi::CallbackInfo &info) { return info.Env().Undefined(); }
 
-Napi::Value USMDecrypter::_demux(const Napi::CallbackInfo &info){
+Napi::Value USMDecrypter::_setEncoding(const Napi::CallbackInfo &info) {
+  Napi::Env env = info.Env();
+  size_t argc = info.Length();
+  if (argc < 1) {
+    Napi::Error::New(env, "USMDecrypter::setEncoding(): arguments.length < 1").ThrowAsJavaScriptException();
+    return env.Undefined();
+  }
+  if (!info[0].IsNumber()) {
+    Napi::Error::New(env, "USMDecrypter::setEncoding(): typeof arguments[0] !== 'number'").ThrowAsJavaScriptException();
+    return env.Undefined();
+  }
+  uint32_t val = info[0].As<Napi::Number>().Uint32Value();
+  if (val != CODEPAGE_SHIFT_JIS && val != CODEPAGE_UTF8) {
+    Napi::Error::New(env, "USMDecrypter::setEncoding(): Unsupported encoding").ThrowAsJavaScriptException();
+    return env.Undefined();
+  }
+  encoding = val;
+  return env.Undefined();
+}
+
+Napi::Value USMDecrypter::_getEncoding(const Napi::CallbackInfo &info) {
+  return Napi::Number::New(info.Env(), (double)encoding);
+}
+
+Napi::Value USMDecrypter::_demux(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   size_t argc = info.Length();
   if (argc < 1) {
@@ -234,12 +296,17 @@ Napi::Value USMDecrypter::_demuxSync(const Napi::CallbackInfo &info){
     }
   }
 
+  if (!is_file(usm)) {
+    Napi::Error::New(env, "USMDecrypter::demuxSync(): fs.statSync(arguments[0]).isFile() !== true").ThrowAsJavaScriptException();
+    return Napi::String::New(env, "");
+  }
+
   if (!is_dir(outdir)) {
     Napi::Error::New(env, "USMDecrypter::demuxSync(): fs.statSync(arguments[1]).isDirectory() !== true").ThrowAsJavaScriptException();
     return Napi::String::New(env, "");
   }
 
-  bool res = _crid->Demux(usm.c_str(), outdir.c_str(), adxDecode);
+  bool res = _crid->Demux(usm.c_str(), outdir.c_str(), adxDecode, encoding);
   if (!res) {
     Napi::Error::New(env, usm + " decrypt failed.").ThrowAsJavaScriptException();
     return Napi::String::New(env, "");

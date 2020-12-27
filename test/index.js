@@ -1,4 +1,4 @@
-const { USMDecrypter } = require('..')
+const { USMDecrypter, Encoding } = require('..')
 const { Downloader, ResourceType } = require('mishiro-core')
 const fs = require('fs-extra')
 const path = require('path')
@@ -10,6 +10,8 @@ const getPath = (...args) => {
 
 const downloader = new Downloader()
 const usm = new USMDecrypter()
+console.log(usm.getEncoding())
+console.log(Encoding)
 
 const usmPath = getPath('./test/movie9909.usm')
 const defaultDir = path.join(path.dirname(usmPath), path.parse(usmPath).name + '.demux')
@@ -33,17 +35,20 @@ describe('USMDecrypter class', function () {
     fs.mkdirsSync(defaultDir)
     demuxAsync('123', defaultDir).then((p) => {
       done(new Error('should failed'))
-    }).catch(() => {
+    }).catch((err) => {
+      console.log(err)
       done()
     })
   })
 
   it('#demuxSync wrong file', function () {
     this.timeout(Infinity)
-    fs.mkdirsSync(defaultDir)
+    const txtfile = path.join(__dirname, '123.txt')
+    fs.writeFileSync(txtfile, 'txt')
     try {
-      usm.demuxSync('123', defaultDir)
+      usm.demuxSync(txtfile, defaultDir)
     } catch (_) {
+      console.log(_)
       return
     }
     throw new Error('should failed')
@@ -82,7 +87,9 @@ describe('USMDecrypter class', function () {
     fs.mkdirsSync(defaultDir)
     const p = await demuxAsync(usmPath)
     assert.ok(p === defaultDir)
-    console.log(fs.readdirSync(defaultDir))
+    const ls = fs.readdirSync(defaultDir)
+    console.log(ls)
+    assert.ok(ls.length !== 0)
   })
 
   it('#demuxSync success', async function () {
@@ -93,6 +100,8 @@ describe('USMDecrypter class', function () {
     fs.mkdirsSync(defaultDir)
     const b = usm.demuxSync(usmPath)
     assert.ok(b === defaultDir)
+    const ls = fs.readdirSync(defaultDir)
+    assert.ok(ls.length !== 0)
   })
 
 })

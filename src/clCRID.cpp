@@ -131,7 +131,7 @@ bool clCRID::LoadFile(const char *filename){
 //--------------------------------------------------
 // 分離
 //--------------------------------------------------
-bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
+bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode, unsigned int encoding){
 
 	// 開放
 	_utf.Release();
@@ -197,7 +197,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 								strcat(filename, PATH_SEP);
 								strcat(filename, fix_filename);
 								strcat(filename, ".ini");
-								fpInfo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								fpInfo = utf8_fopen(shiftjis2utf8(filename, encoding).c_str(),"wb");
 								// fopen_s(&fpInfo,filename,"wb");
 							}
 							break;
@@ -208,7 +208,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 								strcat(filename, PATH_SEP);
 								strcat(filename, fix_filename);
 								strcat(filename, ".m2v");
-								fpVideo = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								fpVideo = utf8_fopen(shiftjis2utf8(filename, encoding).c_str(),"wb");
 								// fopen_s(&fpVideo,filename,"wb");
 							}
 							break;
@@ -220,7 +220,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 								strcat(filename, PATH_SEP);
 								strcat(filename, fix_filename);
 								if(strcmp(GetExtension(ext,_countof(ext),filename),"wav")!=0)strcat(filename,".wav");
-								fpAudio = utf8_fopen(shiftjis2utf8(filename).c_str(),"wb");
+								fpAudio = utf8_fopen(shiftjis2utf8(filename, encoding).c_str(),"wb");
 								// fopen_s(&fpAudio,filename,"wb");
 							}
 							break;
@@ -228,9 +228,9 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 					}
 				}
 				if(info.dataType==1||info.dataType==3){
-					_utf.SaveFileINI(fpInfo);
+					_utf.SaveFileINI(encoding, fpInfo);
 				}else if(info.dataType==2){
-					WriteInfo(fpInfo,(char *)data);
+					WriteInfo(fpInfo,shiftjis2utf8((char *)data, encoding).c_str());
 				}
 			}
 			break;
@@ -242,7 +242,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 				}else if(info.dataType==1||info.dataType==3){
 					clUTF utf;
 					utf.LoadData(data);
-					utf.SaveFileINI(fpInfo);
+					utf.SaveFileINI(encoding, fpInfo);
 				}else if(info.dataType==2){
 					//WriteInfo(fpInfo,(char *)data);
 				}
@@ -257,7 +257,7 @@ bool clCRID::Demux(const char *filename,const char *directory,bool adxDecode){
 				}else if(info.dataType==1||info.dataType==3){
 					clUTF utf;
 					utf.LoadData(data);
-					utf.SaveFileINI(fpInfo);
+					utf.SaveFileINI(encoding, fpInfo);
 				}else if(info.dataType==2){
 					//WriteInfo(fpInfo,(char *)data);
 				}
@@ -371,5 +371,5 @@ void clCRID::MaskAudio(unsigned char *data,int size){
 // 文字列を書き込み
 //--------------------------------------------------
 void clCRID::WriteInfo(FILE *fp,const char *string){
-	if(fp&&string)fprintf(fp,"%s\r\n",string);
+	if(fp&&string)fprintf(fp,"%s%s",string, EOL);
 }

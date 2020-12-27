@@ -10,8 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
@@ -19,6 +17,8 @@ jobs:
       with:
         node-version: '12.18.3'
         registry-url: 'https://registry.npmjs.org'
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
     - name: Windows build
       if: ${{ matrix.os == 'windows-latest' }}

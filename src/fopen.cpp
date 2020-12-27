@@ -76,7 +76,10 @@ std::string w2a(const std::wstring& wstr, unsigned int windowscp, const char* lo
 #endif
 }
 
-std::string shiftjis2utf8 (const std::string& str) {
+std::string shiftjis2utf8 (const std::string& str, unsigned int encoding) {
+  if (encoding == CODEPAGE_UTF8) {
+    return str;
+  }
 #ifdef _WIN32
   return w2a(a2w(str, CODEPAGE_SHIFT_JIS, LOCALE_SHIFT_JIS), CODEPAGE_UTF8, LOCALE_UTF8);
 #else

@@ -198,7 +198,7 @@ bool clUTF::LoadData(void *data){
 //--------------------------------------------------
 // 保存
 //--------------------------------------------------
-bool clUTF::SaveFileINI(const char *filename,bool subUTF){
+bool clUTF::SaveFileINI(unsigned int encoding, const char *filename,bool subUTF){
 
 	// チェック
 	if(!(filename))return false;
@@ -209,26 +209,26 @@ bool clUTF::SaveFileINI(const char *filename,bool subUTF){
 	if(fp == NULL)return false;
 
 	// 保存
-	SaveFileINI(fp,subUTF);
+	SaveFileINI(encoding, fp,subUTF);
 
 	// 閉じる
 	fclose(fp);
 
 	return false;
 }
-bool clUTF::SaveFileINI(FILE *fp,bool subUTF,int tab){
+bool clUTF::SaveFileINI(unsigned int encoding, FILE *fp,bool subUTF,int tab){
 
 	// チェック
 	if(!fp)return false;
 
 	//
 	for(unsigned int i=0,count=_pageCount;i<count;i++){
-		fprintf(fp,"\r\n");
+		fprintf(fp,EOL);
 		for(int j=tab;j>0;j--)fprintf(fp,"  ");
-		fprintf(fp,"[%s_%d]\r\n",_name,i+1);
+		fprintf(fp,"[%s_%d]%s",shiftjis2utf8(_name, encoding).c_str(),i+1,EOL);
 		for(clElement *e=_page[i].first;e;e=e->_next){
 			for(int j=tab;j>0;j--)fprintf(fp,"  ");
-			fprintf(fp,"%s = ",e->_name);
+			fprintf(fp,"%s = ",shiftjis2utf8(e->_name, encoding).c_str());
 			switch(e->_type){
 			case clElement::TYPE_CHAR:fprintf(fp,"%d",e->_valueChar);break;
 			case clElement::TYPE_UCHAR:fprintf(fp,"%u",e->_valueUChar);break;
@@ -239,18 +239,18 @@ bool clUTF::SaveFileINI(FILE *fp,bool subUTF,int tab){
 			case clElement::TYPE_LONGLONG:fprintf(fp,"%lld",e->_valueLongLong);break;
 			case clElement::TYPE_ULONGLONG:fprintf(fp,"%llu",e->_valueULongLong);break;
 			case clElement::TYPE_FLOAT:fprintf(fp,"%g",e->_valueFloat);break;
-			case clElement::TYPE_STRING:fprintf(fp,"%s",e->_valueString);break;
+			case clElement::TYPE_STRING:fprintf(fp,"%s",shiftjis2utf8(e->_valueString, encoding).c_str());break;
 			case clElement::TYPE_DATA:
 				if(subUTF&&clUTF::CheckFile(e->GetData(),e->GetDataSize())){
 					clUTF utf;
 					utf.LoadData(e->GetData());
-					utf.SaveFileINI(fp,true,tab+1);
+					utf.SaveFileINI(encoding, fp,true,tab+1);
 				}else{
 					for(unsigned char *s=(unsigned char *)e->GetData(),*p=s+e->GetDataSize();s<p;s++)fprintf(fp,"%02X ",*s);
 				}
 				break;
 			}
-			fprintf(fp,"\r\n");
+			fprintf(fp,EOL);
 		}
 	}
 

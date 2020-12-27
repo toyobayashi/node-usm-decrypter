@@ -18,7 +18,7 @@ public:
 	bool LoadFile(const char *filename);
 
 	// 分離/マルチプレクサ
-	bool Demux(const char *filename,const char *directory,bool adxDecode=true);
+	bool Demux(const char *filename,const char *directory,bool adxDecode=true, unsigned int encoding = 932U);
 	bool Mux(const char *filename,const char *filenameMovie,const char *filenameAudio);
 
 	// 取得
