@@ -1,7 +1,7 @@
 {
   "variables": {
-    "module_path": "./dist",
-    "PRODUCT_DIR": "./build/Release"
+    "module_name": "usm",
+    "module_path": "./dist"
   },
   'target_defaults': {
     'defines': [
@@ -9,7 +9,7 @@
   },
   'targets': [
     {
-      'target_name': 'usm',
+      'target_name': '<(module_name)',
       'sources': [
         'src/index.cpp',
         'src/fopen.cpp',
@@ -24,10 +24,10 @@
     {
       "target_name": "action_after_build",
       "type": "none",
-      "dependencies": [ "usm" ],
+      "dependencies": [ "<(module_name)" ],
       "copies": [
         {
-          "files": [ "<(PRODUCT_DIR)/usm.node" ],
+          "files": [ "<(PRODUCT_DIR)/<(module_name).node" ],
           "destination": "<(module_path)"
         }
       ]

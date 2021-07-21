@@ -4,9 +4,6 @@
   'include_dirs': [
     "<!(node -p \"require('node-addon-api').include_dir\")"
   ],
-  'dependencies': [
-    "<!(node -p \"require('node-addon-api').gyp\")"
-  ],
   'conditions': [
     ['OS=="mac"', {
       'cflags+': ['-fvisibility=hidden'],
@@ -19,7 +16,10 @@
     }],
     ['OS=="win"', { 
       'msvs_settings': {
-        'VCCLCompilerTool': { 'ExceptionHandling': 1, 'AdditionalOptions': ['/source-charset:utf-8'] },
+        'VCCLCompilerTool': {
+          'ExceptionHandling': 1,
+          'AdditionalOptions': ['/source-charset:utf-8']
+        }
       },
       'defines':[
         'NOMINMAX'
