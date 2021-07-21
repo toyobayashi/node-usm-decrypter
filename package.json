@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "fs-extra": "^9.0.1",
-    "mishiro-core": "^4.7.0",
+    "mishiro-core": "^6.0.0",
     "mocha": "^8.2.1"
   }
 }

@@ -1,4 +1,16 @@
-const { USMDecrypter, Encoding } = require('..')
+const mod = require('..')
+const { USMDecrypter, Encoding } = mod
+
+const Module = require('module')
+
+const oldRequire = Module.prototype.require
+Module.prototype.require = function (...args) {
+  if (args[0] === 'usm-decrypter') {
+    return mod
+  }
+  return oldRequire.call(this, ...args)
+}
+
 const { Downloader, ResourceType } = require('mishiro-core')
 const fs = require('fs-extra')
 const path = require('path')
